@@ -18,7 +18,7 @@ def parse_args():
 
 # load args with config path
 args = parse_args()
-config = yaml.load(open(args.config or 'rtmbot.conf', 'r'))
+config = os.environ
 bot = RtmBot(config)
 try:
     bot.start()
