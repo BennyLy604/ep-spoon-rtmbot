@@ -3,5 +3,5 @@ outputs = []
 
 
 def process_message(data):
-    if (data['text'].contains('eat')) :
+    if 'eat' in data['text']:
         outputs.append([data['channel'], "Eat me."])
