@@ -10,21 +10,21 @@ ACCESS_TOKEN = os.environ['GOOGLE_TOKEN']
 
 
 def process_message(data):
-    match = re.search(r"(^|\W)eat\W*([\w ']+)?", data['text'])
+    match = re.search(r"(^|\W)eat\W*([\w &+']+)?", data['text'])
     if match is not None:
         url = build_search_url(match.group(2), 'restaurant')
         response = requests.get(url)
         jsoncontent = json.loads(response.content)
         results = jsoncontent['results']
         num_results = len(results)
-        if num_results < 20:
+        if num_results < 5:
             outputs.append([data['channel'], '{} results found:'.format(num_results)])
-        elif jsoncontent['next_page_token']:
-            outputs.append([data['channel'], 'More than 20 results found:'])
+        elif 'next_page_token' in jsoncontent:
+            outputs.append([data['channel'], 'More than 5 results found:'])
         else:
-            outputs.append([data['channel'], '20 results found:'])
+            outputs.append([data['channel'], '5 results found:'])
 
-        for result in results:
+        for result in results[:5]:
             outputs.append([data['channel'], pretty_print(result)])
 
 
@@ -52,6 +52,36 @@ def build_details_url(placeid):
 
 def pretty_print(result):
     details_result = json.loads(requests.get(build_details_url(result['place_id'])).content)
-    address = '\n' + details_result['result']['formatted_address']
-    pretty_result = result['name'] + address
+    details = details_result['result']
+    address = '\n' + details['formatted_address']
+    price = ''
+    if 'price_level' in details:
+        price = '\n Price: ' + PriceRating(details['price_level'])
+    rating = ''
+    if 'rating' in details:
+        rating = '\n Rating: ' + str(details['rating'])
+    phone_number = ''
+    if 'international_phone_number' in details:
+        phone_number = '\n Phone: ' + details['international_phone_number']
+    pretty_result = result['name'] + address + price + rating + phone_number
     return pretty_result
+
+
+class PriceRating:
+    def __init__(self, price_level):
+        self.price_level = price_level
+
+    def __str__(self):
+        return {
+            0: 'Free',
+            1: 'Inexpensive',
+            2: 'Moderate',
+            3: 'Expensive',
+            4: 'Very Expensive'
+        }.get(self.price_level, 'Pricing unavailable')
+
+    def __add__(self, other):
+        return str(self) + other
+
+    def __radd__(self, other):
+        return other + str(self)
