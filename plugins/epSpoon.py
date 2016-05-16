@@ -16,9 +16,10 @@ def process_message(data):
         response = requests.get(url)
         jsoncontent = json.loads(response.content)
         results = jsoncontent['results']
+        results = [result for result in results if 'permanently_closed' not in result]
         num_results = len(results)
         if num_results < 5:
-            outputs.append([data['channel'], '{} results found:'.format(num_results)])
+            outputs.append([data['channel'], '{} result(s) found:'.format(num_results)])
         elif 'next_page_token' in jsoncontent:
             outputs.append([data['channel'], 'More than 5 results found:'])
         else:
@@ -53,17 +54,24 @@ def build_details_url(placeid):
 def pretty_print(result):
     details_result = json.loads(requests.get(build_details_url(result['place_id'])).content)
     details = details_result['result']
+    name = '*' + result['name'] + '*'
     address = '\n' + details['formatted_address']
     price = ''
     if 'price_level' in details:
-        price = '\n Price: ' + PriceRating(details['price_level'])
+        price = '\nPrice: ' + PriceRating(details['price_level'])
     rating = ''
     if 'rating' in details:
-        rating = '\n Rating: ' + str(details['rating'])
+        rating = '\nRating: ' + str(details['rating'])
     phone_number = ''
     if 'international_phone_number' in details:
-        phone_number = '\n Phone: ' + details['international_phone_number']
-    pretty_result = result['name'] + address + price + rating + phone_number
+        phone_number = '\nPhone: ' + details['international_phone_number']
+    website = ''
+    if 'website' in details:
+        website = '\nWebsite: ' + details['website']
+    google_maps_url = ''
+    if 'url' in details:
+        google_maps_url = '\nGoogle Maps: ' + details['url']
+    pretty_result = name + address + price + rating + phone_number + website + google_maps_url
     return pretty_result
 
 
