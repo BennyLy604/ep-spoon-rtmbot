@@ -10,7 +10,7 @@ ACCESS_TOKEN = os.environ['GOOGLE_TOKEN']
 
 
 def process_message(data):
-    match = re.search(r"(^|\W)eat\W*([\w &+']+)?", data['text'])
+    match = re.search(r"(^|\W)eat\W*([\w &+'.]+)?", data['text'])
     if match is not None:
         url = build_search_url(match.group(2), 'restaurant')
         response = requests.get(url)
