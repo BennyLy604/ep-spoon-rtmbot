@@ -24,4 +24,5 @@ def test():
 
 
 if __name__ == "__main__":
-    app.run(port=443)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(port=port)
