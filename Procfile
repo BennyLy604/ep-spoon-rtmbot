@@ -1,1 +1,1 @@
-worker: python rtmbot.py
+worker: python slashserver.py
