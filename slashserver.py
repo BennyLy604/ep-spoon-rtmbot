@@ -1,6 +1,12 @@
+import json
 import os
+
+import requests
 from flask import Flask, request, Response
 
+from spoon_helper import SpoonHelper
+
+outputs = []
 
 app = Flask(__name__)
 
@@ -17,7 +23,18 @@ def inbound():
         print(inbound_message)
         response_url = request.form.get('response_url')
 
-    return Response("test"), 200
+        spoon_helper = SpoonHelper()
+        url = spoon_helper.build_search_url(text, 'restaurant')
+        response = requests.get(url)
+        jsoncontent = json.loads(response.content)
+        results = jsoncontent['results']
+        results = [result for result in results if 'permanently_closed' not in result]
+        for result in results[:5]:
+            outputs.append(spoon_helper.pretty_print(result))
+            requests.post(response_url, json={"response_type": "in_channel",
+                                              "text": result})
+
+    return Response(), 200
 
 
 @app.route('/', methods=['GET'])
