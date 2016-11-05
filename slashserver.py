@@ -25,4 +25,4 @@ def test():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(port=port, debug=1)
+    app.run(port=port, debug=1, host="0.0.0.0")
