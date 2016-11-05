@@ -15,7 +15,9 @@ def inbound():
         text = request.form.get('text')
         inbound_message = username + " in " + channel + " says: " + text
         print(inbound_message)
-    return Response(), 200
+        response_url = request.form.get('response_url')
+
+    return Response("test"), 200
 
 
 @app.route('/', methods=['GET'])
