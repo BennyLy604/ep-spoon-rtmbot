@@ -1,2 +1,1 @@
-worker: python slashserver.py
-heroku ps:scale web=1
+web: python slashserver.py
