@@ -1,8 +1,8 @@
+import json
 import os
 import urllib
+
 import requests
-import re
-import json
 
 
 class SpoonHelper(object):
